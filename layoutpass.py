@@ -4,6 +4,7 @@ from enum import Enum
 from collections import namedtuple
 import math
 
+
 Bounds = namedtuple('Bounds', ['left', 'top', 'right', 'bottom'])  # Можно переделать на какой-то другой тип (dataclass mb?)
 Regions = namedtuple('Regions', ['next', 'super', 'subsc', 'above', 'below'])
 
@@ -13,6 +14,14 @@ class SymbolClass(Enum):
     PLAIN_CENTERED = 2
     PLAIN_DESCENDER = 3
     PLAIN_ASCENDER = 4
+
+
+class Region(Enum):
+    NEXT = 1
+    SUPER = 2
+    SUBSC = 3
+    ABOVE = 4
+    BELOW = 5
 
 
 # Пока для классификации буду использовать словарь, потом может что-то другое придумаю
@@ -188,7 +197,7 @@ def find_start_symbol(symbols):
 
 
 def is_adjacent(s1, s2):
-    if s1.regions[1] <= s2.centroid[1] <= s1.regions[2]: # >= ??? Везде сделать одинаково
+    if s1.regions.super <= s2.centroid[1] <= s1.regions.subsc:  # >= ??? Везде сделать одинаково
         return True
 
     return False
@@ -198,8 +207,8 @@ def belong_region(s1, s2):
     x_cent = s2.centroid[0]
     y_cent = s2.centroid[1]
 
-    if x_cent > s1.bounds.right and y_cent < s1.regions[1]:
-        return 1  # 1 - это super из Regions. Пока так...
+    if x_cent > s1.bounds.right and y_cent < s1.regions.super:
+        return Region.SUPER
 
     pass  # Дописать
 
@@ -218,8 +227,6 @@ def find_next_in_baseline(s_cur, symbols):
 def do_layout_pass(data):
     symbols = symbols_data_convertor(data)
 
-    #for s in symbols:
-    #    s.about()
     return layout_pass(symbols)
 
 
@@ -232,19 +239,21 @@ def layout_pass(symbols):
 
     next_s = find_next_in_baseline(s, symbols)
     while len(symbols) > 0:
-        #
-        list = [[]]  # Странно выглядит, но пока так..
-        #
+        regions_dict = dict()
         while len(symbols) > 0 and symbols[0] != next_s:
             if symbols[0] == s:
                 symbols.pop(0)
                 continue
-            region = belong_region(s, symbols[0]) - 1
-            list[region].append(symbols[0])
+
+            region = belong_region(s, symbols[0])
+            if region not in regions_dict:
+                regions_dict[region] = []
+
+            regions_dict[region].append(symbols[0])
             symbols.pop(0)
 
         s.next = next_s
-        s.super = layout_pass(list[0])
+        s.super = layout_pass(regions_dict.get(Region.SUPER, None))
         # И т.д.
         s = next_s
         next_s = find_next_in_baseline(s, symbols)
