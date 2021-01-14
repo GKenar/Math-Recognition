@@ -28,8 +28,18 @@ class Region(Enum):
 classes_dictionary = {
     'x': SymbolClass.PLAIN_CENTERED,
     'y': SymbolClass.PLAIN_DESCENDER,
+    'z': SymbolClass.PLAIN_CENTERED,
     '+': SymbolClass.NON_SCRIPTED,
-    '2': SymbolClass.PLAIN_ASCENDER
+    '0': SymbolClass.PLAIN_ASCENDER,
+    '1': SymbolClass.PLAIN_ASCENDER,
+    '2': SymbolClass.PLAIN_ASCENDER,
+    '3': SymbolClass.PLAIN_ASCENDER,
+    '4': SymbolClass.PLAIN_ASCENDER,
+    '5': SymbolClass.PLAIN_ASCENDER,
+    '6': SymbolClass.PLAIN_ASCENDER,
+    '7': SymbolClass.PLAIN_ASCENDER,
+    '8': SymbolClass.PLAIN_ASCENDER,
+    '9': SymbolClass.PLAIN_ASCENDER
 }
 
 # Глобальные переменные
@@ -108,6 +118,14 @@ class Symbol:
     @super.setter
     def super(self, s):
         self.__super = s
+
+    @property
+    def subsc(self):
+        return self.__subsc
+
+    @subsc.setter
+    def subsc(self, s):
+        self.__subsc = s
 
     def about(self):
         print(self.__symbol_label)
@@ -209,8 +227,10 @@ def belong_region(s1, s2):
 
     if x_cent > s1.bounds.right and y_cent < s1.regions.super:
         return Region.SUPER
+    elif x_cent > s1.bounds.right and y_cent > s1.regions.subsc:
+        return Region.SUBSC
 
-    pass  # Дописать
+    # Дописать
 
 
 # HOR
@@ -254,6 +274,7 @@ def layout_pass(symbols):
 
         s.next = next_s
         s.super = layout_pass(regions_dict.get(Region.SUPER, None))
+        s.subsc = layout_pass(regions_dict.get(Region.SUBSC, None))
         # И т.д.
         s = next_s
         next_s = find_next_in_baseline(s, symbols)
