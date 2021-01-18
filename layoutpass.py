@@ -44,6 +44,7 @@ classes_dictionary = {
     '9': SymbolClass.PLAIN_ASCENDER,
     '(': SymbolClass.OPEN_BRACKET,
     ')': SymbolClass.PLAIN_CENTERED,
+    'fraction': SymbolClass.NON_SCRIPTED,
 }
 
 """
@@ -145,6 +146,22 @@ class Symbol:
     def subsc(self, s):
         self.__subsc = s
 
+    @property
+    def below(self):
+        return self.__below
+
+    @below.setter
+    def below(self, b):
+        self.__below = b
+
+    @property
+    def above(self):
+        return self.__above
+
+    @above.setter
+    def above(self, a):
+        self.__above = a
+
     def about(self):
         print(self.__symbol_label)
         print(self.__symbol_class)
@@ -224,7 +241,15 @@ def sort_symbols_list(symbols):
 
 # Пока так
 def dominance(s1, s2):
-    return False
+    # Сранвнение со строкой
+    if s1.symbol_label != 'fraction':
+        return False
+
+    s2_belong = belong_region(s1, s2)
+    if s2_belong == Region.ABOVE or s2_belong == Region.BELOW:
+        return True
+    else:
+        return False
 
 
 def find_start_symbol(symbols):
@@ -248,6 +273,7 @@ def is_adjacent(s1, s2):
     return False
 
 
+# Проверить границы (<= и <, >= и >)
 def belong_region(s1, s2):
     x_cent = s2.centroid[0]
     y_cent = s2.centroid[1]
@@ -256,6 +282,10 @@ def belong_region(s1, s2):
         return Region.SUPER
     elif x_cent > s1.bounds.right and y_cent > s1.regions.subsc:
         return Region.SUBSC
+    elif s1.bounds.left <= x_cent <= s1.bounds.right and s1.regions.above > y_cent:
+        return Region.ABOVE
+    elif s1.bounds.left <= x_cent <= s1.bounds.right and s1.regions.below < y_cent:
+        return Region.BELOW
 
     # Дописать
 
@@ -268,7 +298,7 @@ def belong_region(s1, s2):
 # Либо же можно возвращать следующий и следующий доминирующий символ..
 def find_next_in_baseline(s_cur, symbols):
     for x in symbols:
-        if x.bounds.left <= s_cur.bounds.left:
+        if x.bounds.left <= s_cur.bounds.right:
             continue
         if is_adjacent(s_cur, x):
             return x
@@ -307,7 +337,9 @@ def layout_pass(symbols):
         s.next = next_s
         s.super = layout_pass(regions_dict.get(Region.SUPER, None))
         s.subsc = layout_pass(regions_dict.get(Region.SUBSC, None))
-        # И т.д.
+        s.above = layout_pass(regions_dict.get(Region.ABOVE, None))
+        s.below = layout_pass(regions_dict.get(Region.BELOW, None))
+
         s = next_s
         next_s = find_next_in_baseline(s, symbols)
 
