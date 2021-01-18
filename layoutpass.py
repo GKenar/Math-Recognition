@@ -5,7 +5,7 @@ from collections import namedtuple
 import math
 
 
-Bounds = namedtuple('Bounds', ['left', 'top', 'right', 'bottom'])  # Можно переделать на какой-то другой тип (dataclass mb?)
+Bounds = namedtuple('Bounds', ['left', 'top', 'right', 'bottom'])
 Regions = namedtuple('Regions', ['next', 'super', 'subsc', 'above', 'below'])
 
 
@@ -42,6 +42,21 @@ classes_dictionary = {
     '9': SymbolClass.PLAIN_ASCENDER
 }
 
+"""
+Можно заменить потом classes_dictionary на это:
+
+classes_dictionary = {
+    'digit': SymbolClass.PLAIN_ASCENDER,
+    'operator': SymbolClass.NON_SCRIPTED,
+    # etc
+}
+
+def get_symbol_class(sybmol):
+    if symbol.isdigit():
+        return classes_dictionary[digit]
+    elif ...
+"""
+
 # Глобальные переменные
 centroid_ratio = 0.5
 threshold_ratio = 0.3  # t <= c; t, c iz [0, 0.5]
@@ -71,7 +86,7 @@ class Symbol:
         return self.__symbol_class
 
     @symbol_class.setter
-    def symbol_class(self, sym_class):  # При изменении класса нужно также менять regions и т.д.
+    def symbol_class(self, sym_class):  # При изменении класса нужно также менять regions и т.д.?
         self.__symbol_class = sym_class
 
     @property
@@ -81,7 +96,6 @@ class Symbol:
     @bounds.setter
     def bounds(self, b):
         self.__bounds = b
-        # self.__centroid = [(b[2] + b[0]) / 2, (b[3] + b[1]) / 2]
 
     @property
     def regions(self):
@@ -214,8 +228,9 @@ def find_start_symbol(symbols):
     return L[0]
 
 
+# Здесь будет <= (т.е. включительно), а в belong_region будет > (т.е. не включительно)
 def is_adjacent(s1, s2):
-    if s1.regions.super <= s2.centroid[1] <= s1.regions.subsc:  # >= ??? Везде сделать одинаково
+    if s1.regions.super <= s2.centroid[1] <= s1.regions.subsc:
         return True
 
     return False
@@ -234,6 +249,11 @@ def belong_region(s1, s2):
 
 
 # HOR
+# Улучшение алгоритма
+# Нужно искать не просто следующий символ (как сейчас), а следующий доминирующий символ. (см. заметки №2)
+# Но нужно будет переделывать алгоритм. Иначе предыдущие символы, которые могли быть next,
+# но не стали из-за доминирующего, будут причислены к регионам s_cur.
+# Либо же можно возвращать следующий и следующий доминирующий символ..
 def find_next_in_baseline(s_cur, symbols):
     for x in symbols:
         if x.bounds.left <= s_cur.bounds.left:
