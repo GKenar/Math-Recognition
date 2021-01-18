@@ -14,6 +14,7 @@ class SymbolClass(Enum):
     PLAIN_CENTERED = 2
     PLAIN_DESCENDER = 3
     PLAIN_ASCENDER = 4
+    OPEN_BRACKET = 5
 
 
 class Region(Enum):
@@ -30,6 +31,7 @@ classes_dictionary = {
     'y': SymbolClass.PLAIN_DESCENDER,
     'z': SymbolClass.PLAIN_CENTERED,
     '+': SymbolClass.NON_SCRIPTED,
+    '-': SymbolClass.NON_SCRIPTED,
     '0': SymbolClass.PLAIN_ASCENDER,
     '1': SymbolClass.PLAIN_ASCENDER,
     '2': SymbolClass.PLAIN_ASCENDER,
@@ -39,7 +41,9 @@ classes_dictionary = {
     '6': SymbolClass.PLAIN_ASCENDER,
     '7': SymbolClass.PLAIN_ASCENDER,
     '8': SymbolClass.PLAIN_ASCENDER,
-    '9': SymbolClass.PLAIN_ASCENDER
+    '9': SymbolClass.PLAIN_ASCENDER,
+    '(': SymbolClass.OPEN_BRACKET,
+    ')': SymbolClass.PLAIN_CENTERED,
 }
 
 """
@@ -59,7 +63,7 @@ def get_symbol_class(sybmol):
 
 # Глобальные переменные
 centroid_ratio = 0.5
-threshold_ratio = 0.3  # t <= c; t, c iz [0, 0.5]
+threshold_ratio = 0.2  # t <= c; t, c iz [0, 0.5]
 ###
 
 
@@ -204,6 +208,14 @@ def set_symbol_thresholds_and_centroid(symbol):
                                  subsc=symbol.bounds.bottom - threshold_ratio * H,
                                  above=symbol.bounds.bottom - (H - threshold_ratio * H),
                                  below=symbol.bounds.bottom - threshold_ratio * H)
+    elif symbol.symbol_class == SymbolClass.OPEN_BRACKET:
+        symbol.centroid = [(symbol.bounds.right + symbol.bounds.left) / 2,
+                           symbol.bounds.bottom - centroid_ratio * H]
+        symbol.regions = Regions(next=symbol.bounds.right,
+                                 super=-math.inf,
+                                 subsc=math.inf,
+                                 above=symbol.bounds.top,
+                                 below=symbol.bounds.bottom)
 
 
 def sort_symbols_list(symbols):
