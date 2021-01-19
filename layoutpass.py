@@ -319,9 +319,10 @@ def layout_pass(symbols):
     sort_symbols_list(symbols)
     s_return = s = find_start_symbol(symbols)
 
-    next_s = find_next_in_baseline(s, symbols)
     while len(symbols) > 0:
+        next_s = find_next_in_baseline(s, symbols)
         regions_dict = dict()
+
         while len(symbols) > 0 and symbols[0] != next_s:
             if symbols[0] == s:
                 symbols.pop(0)
@@ -341,6 +342,5 @@ def layout_pass(symbols):
         s.below = layout_pass(regions_dict.get(Region.BELOW, None))
 
         s = next_s
-        next_s = find_next_in_baseline(s, symbols)
 
     return s_return
