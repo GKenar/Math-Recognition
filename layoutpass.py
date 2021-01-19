@@ -204,7 +204,7 @@ def set_symbol_thresholds_and_centroid(symbol):
     elif symbol.symbol_class == SymbolClass.PLAIN_ASCENDER:
         symbol.centroid = [(symbol.bounds.right + symbol.bounds.left) / 2,
                            symbol.bounds.bottom - centroid_ratio * H]
-        symbol.regions = Regions(next=symbol.bounds.right,
+        symbol.regions = Regions(next=symbol.bounds.left,
                                  super=symbol.bounds.bottom - (H - threshold_ratio * H),
                                  subsc=symbol.bounds.bottom - threshold_ratio * H,
                                  above=symbol.bounds.bottom - (H - threshold_ratio * H),
@@ -212,7 +212,7 @@ def set_symbol_thresholds_and_centroid(symbol):
     elif symbol.symbol_class == SymbolClass.PLAIN_DESCENDER:
         symbol.centroid = [(symbol.bounds.right + symbol.bounds.left) / 2,
                            symbol.bounds.bottom - (H - centroid_ratio * H)]
-        symbol.regions = Regions(next=symbol.bounds.right,
+        symbol.regions = Regions(next=symbol.bounds.left,
                                  super=symbol.bounds.bottom - (H - threshold_ratio / 2 * H),
                                  subsc=symbol.bounds.bottom - (H / 2 + threshold_ratio / 2 * H),
                                  above=symbol.bounds.bottom - (H - threshold_ratio / 2 * H),
@@ -220,7 +220,7 @@ def set_symbol_thresholds_and_centroid(symbol):
     elif symbol.symbol_class == SymbolClass.PLAIN_CENTERED:
         symbol.centroid = [(symbol.bounds.right + symbol.bounds.left) / 2,
                            symbol.bounds.bottom - 1 / 2 * H]
-        symbol.regions = Regions(next=symbol.bounds.right,
+        symbol.regions = Regions(next=symbol.bounds.left,
                                  super=symbol.bounds.bottom - (H - threshold_ratio * H),
                                  subsc=symbol.bounds.bottom - threshold_ratio * H,
                                  above=symbol.bounds.bottom - (H - threshold_ratio * H),
@@ -228,9 +228,9 @@ def set_symbol_thresholds_and_centroid(symbol):
     elif symbol.symbol_class == SymbolClass.OPEN_BRACKET:
         symbol.centroid = [(symbol.bounds.right + symbol.bounds.left) / 2,
                            symbol.bounds.bottom - centroid_ratio * H]
-        symbol.regions = Regions(next=symbol.bounds.right,
-                                 super=-math.inf,
-                                 subsc=math.inf,
+        symbol.regions = Regions(next=symbol.bounds.left,
+                                 super=-math.inf,  # Возможно, нужно написать super=inf, subsc=-inf, а next находить как-то по-другому
+                                 subsc=math.inf,  # Например, если лежит справа, но не принадлежит никакому региону.
                                  above=symbol.bounds.top,
                                  below=symbol.bounds.bottom)
 
@@ -239,17 +239,16 @@ def sort_symbols_list(symbols):
     symbols.sort(key=lambda s: s.bounds.left)
 
 
-# Пока так
+# Пока так. Нужно продумать с примером 10.
 def dominance(s1, s2):
-    # Сранвнение со строкой
-    if s1.symbol_label != 'fraction':
-        return False
-
-    s2_belong = belong_region(s1, s2)
-    if s2_belong == Region.ABOVE or s2_belong == Region.BELOW:
-        return True
-    else:
-        return False
+    if s1.symbol_class == SymbolClass.NON_SCRIPTED and s1.bounds.left <= s2.centroid[0] < s1.bounds.right:
+        if not ((s2.symbol_label == '(' or s2.symbol_label == ')') and
+                s2.bounds.top <= s1.centroid[1] < s2.bounds.bottom and
+                s2.bounds.left <= s1.bounds.left):
+            if not (s2.symbol_class == SymbolClass.NON_SCRIPTED and
+                    s2.bounds.right - s2.bounds.left > s1.bounds.right - s1.bounds.left):
+                return True
+    return False
 
 
 def find_start_symbol(symbols):
@@ -290,15 +289,17 @@ def belong_region(s1, s2):
     # Дописать
 
 
-# HOR
-# Улучшение алгоритма
-# Нужно искать не просто следующий символ (как сейчас), а следующий доминирующий символ. (см. заметки №2)
-# Но нужно будет переделывать алгоритм. Иначе предыдущие символы, которые могли быть next,
-# но не стали из-за доминирующего, будут причислены к регионам s_cur.
-# Либо же можно возвращать следующий и следующий доминирующий символ..
+# HOR | прочитать про различные HOR, которые начинаются с xmin или с xmax!!
 def find_next_in_baseline(s_cur, symbols):
+
+    """
+    if s_cur.symbol_class == SymbolClass.NON_SCRIPTED:  # Разобраться с этой частью
+        border = s_cur.bounds.right
+    else:
+        border = s_cur.bounds.left
+    """
     for x in symbols:
-        if x.bounds.left <= s_cur.bounds.right:
+        if x.bounds.left <= s_cur.regions.next:
             continue
         if is_adjacent(s_cur, x):
             return x
@@ -316,31 +317,27 @@ def layout_pass(symbols):
     if symbols is None or len(symbols) == 0:
         return None
 
-    sort_symbols_list(symbols)
-    s_return = s = find_start_symbol(symbols)
+    sort_symbols_list(symbols)  # Нужна ли постоянная сортировка?
+    s = find_start_symbol(symbols)
+    next_s = find_next_in_baseline(s, symbols)
 
-    while len(symbols) > 0:
-        next_s = find_next_in_baseline(s, symbols)
-        regions_dict = dict()
-
-        while len(symbols) > 0 and symbols[0] != next_s:
-            if symbols[0] == s:
-                symbols.pop(0)
-                continue
-
-            region = belong_region(s, symbols[0])
-            if region not in regions_dict:
-                regions_dict[region] = []
-
-            regions_dict[region].append(symbols[0])
+    regions_dict = dict()
+    while len(symbols) > 0 and symbols[0] != next_s:
+        if symbols[0] == s:
             symbols.pop(0)
+            continue
 
-        s.next = next_s
-        s.super = layout_pass(regions_dict.get(Region.SUPER, None))
-        s.subsc = layout_pass(regions_dict.get(Region.SUBSC, None))
-        s.above = layout_pass(regions_dict.get(Region.ABOVE, None))
-        s.below = layout_pass(regions_dict.get(Region.BELOW, None))
+        region = belong_region(s, symbols[0])
+        if region not in regions_dict:
+            regions_dict[region] = []
 
-        s = next_s
+        regions_dict[region].append(symbols[0])
+        symbols.pop(0)
 
-    return s_return
+    s.next = layout_pass(symbols)
+    s.super = layout_pass(regions_dict.get(Region.SUPER, None))
+    s.subsc = layout_pass(regions_dict.get(Region.SUBSC, None))
+    s.above = layout_pass(regions_dict.get(Region.ABOVE, None))
+    s.below = layout_pass(regions_dict.get(Region.BELOW, None))
+
+    return s
