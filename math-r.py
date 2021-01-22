@@ -2,19 +2,12 @@ import numpy as np
 import os
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPool2D
-import matplotlib.pyplot as plt
-import skimage.data as data
-import skimage.segmentation as seg
-import skimage.filters as filters
-import skimage.draw as draw
-import skimage.color as color
-from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 import cv2
+import matplotlib.pyplot as plt
 
 # Подгружаем картинку
-image_path = "expression2.png"
+image_path = "expr_examples/expression4444.png"
 img = cv2.imread(image_path)
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
@@ -30,6 +23,7 @@ output = img.copy()
 # Формируем массив символов из полученных ранее контуров; сжимаем каждую картинку
 # символа до 28x28
 symbols = []
+symbolsBounds = []
 for idx, contour in enumerate(contours):
     if hierarchy[0][idx][3] == 0:
         (x, y, w, h) = cv2.boundingRect(contour)
@@ -41,7 +35,7 @@ for idx, contour in enumerate(contours):
 
         symbol = gray[y:y + h, x:x + w]
         # Сжимаем до 24px по бОльшей стороне
-        symbol = cv2.resize(symbol, (int(w * aspect), int(h * aspect)))
+        symbol = cv2.resize(symbol, (int(w * aspect), int(h * aspect)), interpolation=cv2.INTER_LANCZOS4) #  Посмотреть другие interp
         symbol_size = symbol.shape
 
         # Создаём квадратный символ 28x28 и по центру помещаем исходный 26x26
@@ -55,6 +49,7 @@ for idx, contour in enumerate(contours):
         # cv2.waitKey(0)
 
         symbols.append(symbol_squared)
+        symbolsBounds.append([x, y, w, h])
 
 # cv2.imshow("Output", output)
 # symbols.sort(key=lambda x: x[0])
@@ -76,9 +71,11 @@ model.add(MaxPool2D(pool_size=(2, 2)))
 model.add(Conv2D(64, kernel_size=3, activation='relu'))
 model.add(MaxPool2D(pool_size=(2, 2)))
 model.add(Conv2D(64, kernel_size=3, activation='relu'))
+model.add(Dropout(0.25))
 model.add(Flatten())
 model.add(Dense(64, activation='relu'))
-model.add(Dense(10, activation='softmax'))
+model.add(Dropout(0.25))
+model.add(Dense(12, activation='softmax'))
 
 
 model.compile(loss="categorical_crossentropy",
@@ -89,16 +86,32 @@ model.load_weights(checkpoint_path)
 
 print("loaded.")
 
+predicted_symbol_labels = []
 for id in range(len(symbols)):
     # Нормализируем
     symbols[id] = symbols[id] / 255.0
     symbols[id] = 1 - symbols[id]
 
     result = model.predict(np.array([symbols[id].reshape(28, 28, 1)]))
-    print(result)
-    print(np.argmax(result, axis=1))
-    cv2.imshow(str(np.argmax(result, axis=1)), symbols[id])
-    cv2.resizeWindow(str(np.argmax(result, axis=1)), 200, 30)  # resize the window
+    predicted_symbol_labels.append(result)
+    # print(result)
+    # print(np.argmax(result, axis=1))
+    # symbols[id] = cv2.resize(symbols[id], (50, 50))
+    # cv2.imshow(str(np.argmax(result, axis=1)), symbols[id])
+    # cv2.resizeWindow(str(np.argmax(result, axis=1)), 200, 70)  # resize the window
+    # print(symbolsBounds[id])
+    # cv2.waitKey(0)
 
-    cv2.waitKey(0)
+# symbolsBounds.sort(key=lambda s: s[0])
+# print(symbolsBounds)
+
+fig = plt.figure(figsize=(8, 8))
+for i in range(len(symbols)):
+    plt.subplot(int(np.ceil(len(symbols) / 10)), 10, i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid(False)
+    plt.imshow(symbols[i], cmap=plt.cm.binary)
+    plt.xlabel(str(np.argmax(predicted_symbol_labels[i], axis=1)))
+plt.show()
 
