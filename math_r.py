@@ -8,11 +8,12 @@ from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 import cv2
 import matplotlib.pyplot as plt
 
+
 def scale_contour(cnt, scale):
-    #M = cv2.moments(cnt)
+    # M = cv2.moments(cnt)
     (x, y, w, h) = cv2.boundingRect(cnt)
-    cx = x#int(M['m10']/M['m00'])
-    cy = y#int(M['m01']/M['m00'])
+    cx = x  # int(M['m10']/M['m00'])
+    cy = y  # int(M['m01']/M['m00'])
 
     cnt_norm = cnt - [cx, cy]
     cnt_scaled = cnt_norm * scale
@@ -30,7 +31,7 @@ def parse_image(image_path):
     img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8), iterations=1)
 
     # Достаём отдельные контуры из картинки
-    contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)  #CHAIN_APPROX_SIMPLE
+    contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)  # CHAIN_APPROX_SIMPLE
 
     # print(hierarchy)
 
@@ -52,7 +53,8 @@ def parse_image(image_path):
 
             symbol = gray[y:y + h, x:x + w]
             # Сжимаем до 24px по бОльшей стороне
-            symbol = cv2.resize(symbol, (int(np.ceil(w * aspect)), int(np.ceil(h * aspect))), interpolation=cv2.INTER_LANCZOS4) #  Посмотреть другие interp
+            symbol = cv2.resize(symbol, (int(np.ceil(w * aspect)), int(np.ceil(h * aspect))),
+                                interpolation=cv2.INTER_LANCZOS4)  # Посмотреть другие interp
             symbol_size = symbol.shape
 
             if h > 300 or w > 300:  # Если символ слишком большой, то использовать не сжатое изображений, а сжатый контур
@@ -133,15 +135,15 @@ def parse_image(image_path):
     return symbols, predicted_symbol_labels, symbols_bounds
 
 
-result = parse_image('expr_examples/expression4444.png')
+if __name__ == "__main__":
+    result = parse_image('expr_examples/expression4444.png')
 
-fig = plt.figure(figsize=(8, 8))
-for i in range(len(result[0])):
-    plt.subplot(int(np.ceil(len(result[0]) / 10)), 10, i+1)
-    plt.xticks([])
-    plt.yticks([])
-    plt.grid(False)
-    plt.imshow(result[0][i], cmap=plt.cm.binary)
-    plt.xlabel(str(np.argmax(result[1][i], axis=1)))
-plt.show()
-
+    fig = plt.figure(figsize=(8, 8))
+    for i in range(len(result[0])):
+        plt.subplot(int(np.ceil(len(result[0]) / 10)), 10, i + 1)
+        plt.xticks([])
+        plt.yticks([])
+        plt.grid(False)
+        plt.imshow(result[0][i], cmap=plt.cm.binary)
+        plt.xlabel(str(np.argmax(result[1][i], axis=1)))
+    plt.show()
