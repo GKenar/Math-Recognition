@@ -43,8 +43,7 @@ classes_dictionary = {
     '8': SymbolClass.PLAIN_ASCENDER,
     '9': SymbolClass.PLAIN_ASCENDER,
     '(': SymbolClass.OPEN_BRACKET,
-    ')': SymbolClass.PLAIN_CENTERED,
-    'fraction': SymbolClass.NON_SCRIPTED,
+    ')': SymbolClass.PLAIN_CENTERED
 }
 
 """
@@ -291,13 +290,6 @@ def belong_region(s1, s2):
 
 # HOR | прочитать про различные HOR, которые начинаются с xmin или с xmax!!
 def find_next_in_baseline(s_cur, symbols):
-
-    """
-    if s_cur.symbol_class == SymbolClass.NON_SCRIPTED:  # Разобраться с этой частью
-        border = s_cur.bounds.right
-    else:
-        border = s_cur.bounds.left
-    """
     for x in symbols:
         if x.bounds.left <= s_cur.regions.next:
             continue

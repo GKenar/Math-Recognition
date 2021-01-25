@@ -91,17 +91,6 @@ data_expr_11 = [
 # print(x)
 
 
-# !!! Сейчас это просто заглушка для работы demo версии
-# Потом сделать lexical analysis, чтобы заменять - на дробь и т.д.
-def semantic_correction(data):
-    for symbol in data:
-        if symbol[0] == '-':
-            for symbol2 in data:
-                if symbol != symbol2 and symbol[1][0] < symbol2[1][0] + symbol2[1][2] / 2 < symbol[1][0] + symbol[1][2]:
-                    symbol[0] = 'fraction'
-                    break
-
-
 # Преобразует данные от нейронной сети в формат для layoutpass
 def image_parser_data_converter(data):
     output = []
@@ -194,7 +183,6 @@ while True:
 
         result = parse_image(image)
         result = image_parser_data_converter(result)
-        semantic_correction(result)
 
         x = do_layout_pass(result)
         str = ''.join(layout_pass_to_string(x))
