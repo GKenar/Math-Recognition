@@ -8,6 +8,20 @@ from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 import cv2
 import matplotlib.pyplot as plt
 
+symbols_dictionary = {
+    0: '0',
+    1: '1',
+    2: '2',
+    3: '3',
+    4: '4',
+    5: '5',
+    6: '6',
+    7: '7',
+    8: '8',
+    9: '9',
+    10: '+',
+    11: '-',
+}
 
 def scale_contour(cnt, scale):
     # M = cv2.moments(cnt)
@@ -23,9 +37,8 @@ def scale_contour(cnt, scale):
     return cnt_scaled
 
 
-def parse_image(image_path):
+def parse_image(img):
     # Подгружаем картинку
-    img = cv2.imread(image_path)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY)
     img_erode = cv2.erode(thresh, np.ones((3, 3), np.uint8), iterations=1)
@@ -120,8 +133,10 @@ def parse_image(image_path):
         symbols[id] = symbols[id] / 255.0
         symbols[id] = 1 - symbols[id]
 
-        result = model.predict(np.array([symbols[id].reshape(28, 28, 1)]))
-        predicted_symbol_labels.append(result)
+        id_symbol_predicted = np.argmax(model.predict(np.array([symbols[id].reshape(28, 28, 1)])))
+        symbol_predicted = symbols_dictionary[id_symbol_predicted]
+
+        predicted_symbol_labels.append(symbol_predicted)
         # print(result)
         # print(np.argmax(result, axis=1))
         # symbols[id] = cv2.resize(symbols[id], (50, 50))
@@ -136,7 +151,7 @@ def parse_image(image_path):
 
 
 if __name__ == "__main__":
-    result = parse_image('expr_examples/expression4444.png')
+    result = parse_image(cv2.imread('expr_examples/expression4444.png'))
 
     fig = plt.figure(figsize=(8, 8))
     for i in range(len(result[0])):
@@ -145,5 +160,5 @@ if __name__ == "__main__":
         plt.yticks([])
         plt.grid(False)
         plt.imshow(result[0][i], cmap=plt.cm.binary)
-        plt.xlabel(str(np.argmax(result[1][i], axis=1)))
+        plt.xlabel(str(result[1][i]))
     plt.show()
