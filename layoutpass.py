@@ -122,6 +122,10 @@ class Symbol:
     def symbol_label(self):
         return self.__symbol_label
 
+    @symbol_label.setter
+    def symbol_label(self, l):
+        self.__symbol_label = l
+
     @property
     def next(self):
         return self.__next

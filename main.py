@@ -1,5 +1,6 @@
 from layoutpass import do_layout_pass, Symbol
 from math_r import parse_image
+from lexical_analysis import do_lexical_analysis
 import cv2
 import numpy as np
 
@@ -185,6 +186,7 @@ while True:
         result = image_parser_data_converter(result)
 
         x = do_layout_pass(result)
+        do_lexical_analysis(x)
         str = ''.join(layout_pass_to_string(x))
         print(str)
 
