@@ -292,7 +292,7 @@ def belong_region(s1, s2):
 # HOR | прочитать про различные HOR, которые начинаются с xmin или с xmax!!
 def find_next_in_baseline(s_cur, symbols):
     for x in symbols:
-        if x.bounds.left <= s_cur.regions.next:
+        if x == s_cur or x.centroid[0] <= s_cur.regions.next:
             continue
         if is_adjacent(s_cur, x):
             return x
