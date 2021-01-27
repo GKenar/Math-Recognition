@@ -21,6 +21,9 @@ symbols_dictionary = {
     9: '9',
     10: '+',
     11: '-',
+    12: 'dot',
+    13: '(',
+    14: ')',
 }
 
 def scale_contour(cnt, scale):
@@ -117,7 +120,7 @@ def parse_image(img):
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
     model.add(Dropout(0.25))
-    model.add(Dense(12, activation='softmax'))
+    model.add(Dense(15, activation='softmax'))
 
     model.compile(loss="categorical_crossentropy",
                   optimizer="adam",

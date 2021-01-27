@@ -43,7 +43,8 @@ classes_dictionary = {
     '8': SymbolClass.PLAIN_ASCENDER,
     '9': SymbolClass.PLAIN_ASCENDER,
     '(': SymbolClass.OPEN_BRACKET,
-    ')': SymbolClass.PLAIN_CENTERED
+    ')': SymbolClass.PLAIN_CENTERED,
+    'dot': SymbolClass.NON_SCRIPTED
 }
 
 """
