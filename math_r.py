@@ -1,12 +1,12 @@
-__all__ = ["parse_image"]
+__all__ = ["parse_image", "build_model", "load_weights"]
 
 import numpy as np
-import os
-import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 import cv2
 import matplotlib.pyplot as plt
+
+model = keras.Sequential()
 
 symbols_dictionary = {
     0: '0',
@@ -25,6 +25,29 @@ symbols_dictionary = {
     13: '(',
     14: ')',
 }
+
+
+def build_model():
+    model.add(Conv2D(32, kernel_size=3, activation='relu', input_shape=(28, 28, 1)))
+    model.add(MaxPool2D(pool_size=(2, 2)))
+    model.add(Conv2D(64, kernel_size=3, activation='relu'))
+    model.add(MaxPool2D(pool_size=(2, 2)))
+    model.add(Conv2D(64, kernel_size=3, activation='relu'))
+    model.add(Dropout(0.25))
+    model.add(Flatten())
+    model.add(Dense(64, activation='relu'))
+    model.add(Dropout(0.25))
+    model.add(Dense(15, activation='softmax'))
+
+    model.compile(loss="categorical_crossentropy",
+                  optimizer="adam",
+                  metrics=['accuracy'])
+
+
+def load_weights(path):
+    model.load_weights(path)
+    print("loaded.")
+
 
 def scale_contour(cnt, scale):
     # M = cv2.moments(cnt)
@@ -48,10 +71,6 @@ def parse_image(img):
 
     # Достаём отдельные контуры из картинки
     contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)  # CHAIN_APPROX_SIMPLE
-
-    # print(hierarchy)
-
-    # output = img.copy()
 
     # Формируем массив символов из полученных ранее контуров; сжимаем каждую картинку
     # символа до 28x28
@@ -91,44 +110,9 @@ def parse_image(img):
                 for j in range(symbol_size[1]):
                     symbol_squared[i + shiftH, j + shiftW] = symbol[i, j]
 
-            # cv2.imshow("squared!", symbol_squared)
-            # cv2.waitKey(0)
 
             symbols.append(symbol_squared)
             symbols_bounds.append([x, y, w, h])
-
-    # cv2.imshow("Output", output)
-    # symbols.sort(key=lambda x: x[0])
-
-    # for id, s in enumerate(symbols):
-    #    cv2.imshow(str(id), s)
-
-    checkpoint_path = "training_1/cp.ckpt"
-    checkpoint_dir = os.path.dirname(checkpoint_path)
-
-    # Создаем коллбек сохраняющий веса модели
-    cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                                     save_weights_only=True,
-                                                     verbose=1)
-    model = keras.Sequential()
-    model.add(Conv2D(32, kernel_size=3, activation='relu', input_shape=(28, 28, 1)))
-    model.add(MaxPool2D(pool_size=(2, 2)))
-    model.add(Conv2D(64, kernel_size=3, activation='relu'))
-    model.add(MaxPool2D(pool_size=(2, 2)))
-    model.add(Conv2D(64, kernel_size=3, activation='relu'))
-    model.add(Dropout(0.25))
-    model.add(Flatten())
-    model.add(Dense(64, activation='relu'))
-    model.add(Dropout(0.25))
-    model.add(Dense(15, activation='softmax'))
-
-    model.compile(loss="categorical_crossentropy",
-                  optimizer="adam",
-                  metrics=['accuracy'])
-
-    model.load_weights(checkpoint_path)
-
-    print("loaded.")
 
     predicted_symbol_labels = []
     for id in range(len(symbols)):
@@ -140,20 +124,15 @@ def parse_image(img):
         symbol_predicted = symbols_dictionary[id_symbol_predicted]
 
         predicted_symbol_labels.append(symbol_predicted)
-        # print(result)
-        # print(np.argmax(result, axis=1))
-        # symbols[id] = cv2.resize(symbols[id], (50, 50))
-        # cv2.imshow(str(np.argmax(result, axis=1)), symbols[id])
-        # cv2.resizeWindow(str(np.argmax(result, axis=1)), 200, 70)  # resize the window
-        # print(symbols_bounds[id])
-        # cv2.waitKey(0)
 
-    # symbols_bounds.sort(key=lambda s: s[0])
-    # print(symbols_bounds)
     return symbols, predicted_symbol_labels, symbols_bounds
 
 
 if __name__ == "__main__":
+    build_model()
+    checkpoint_path = "training_1/cp.ckpt"
+    load_weights(checkpoint_path)
+
     result = parse_image(cv2.imread('expr_examples/expression4444.png'))
 
     fig = plt.figure(figsize=(8, 8))
