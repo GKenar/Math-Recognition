@@ -28,14 +28,16 @@ symbols_dictionary = {
 
 
 def build_model():
-    model.add(Conv2D(32, kernel_size=3, activation='relu', input_shape=(28, 28, 1)))
+    model.add(Conv2D(filters=32, kernel_size=3, activation='relu', padding='same', input_shape=(32, 32, 1)))
     model.add(MaxPool2D(pool_size=(2, 2)))
-    model.add(Conv2D(64, kernel_size=3, activation='relu'))
+    model.add(Conv2D(filters=64, kernel_size=3, activation='relu', padding='same'))
     model.add(MaxPool2D(pool_size=(2, 2)))
-    model.add(Conv2D(64, kernel_size=3, activation='relu'))
+    model.add(Conv2D(filters=64, kernel_size=3, activation='relu', padding='same'))
     model.add(Dropout(0.25))
     model.add(Flatten())
-    model.add(Dense(64, activation='relu'))
+    model.add(Dense(512, activation='relu'))
+    model.add(Dropout(0.25))
+    model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.25))
     model.add(Dense(15, activation='softmax'))
 
@@ -83,8 +85,8 @@ def parse_image(img):
             # cv2.rectangle(output, (x, y), (x + w, y + h), (70, 0, 0), 1)
 
             size_max = max(w, h)
-            symbol_squared = 255 * np.ones((28, 28))
-            aspect = 24.0 / size_max
+            symbol_squared = 255 * np.ones((32, 32))
+            aspect = 30.0 / size_max
 
             symbol = gray[y:y + h, x:x + w]
             # Сжимаем до 24px по бОльшей стороне
@@ -93,9 +95,9 @@ def parse_image(img):
             symbol_size = symbol.shape
 
             if h > 300 or w > 300:  # Если символ слишком большой, то использовать не сжатое изображений, а сжатый контур
-                test_img = 255 * np.ones((28, 28))
+                test_img = 255 * np.ones((32, 32))
                 contour_scaled = scale_contour(contour, aspect)
-                cv2.drawContours(test_img, [contour_scaled], 0, (0, 0, 0), 2, offset=(-x, -y))
+                cv2.drawContours(test_img, [contour_scaled], 0, (0, 0, 0), 1, offset=(-x, -y))
                 # cv2.fillPoly(test_img, contour_scaled, (0, 0, 0), offset=(-x, -y))
                 # test_img = cv2.resize(test_img, (500, 500),
                 #                    interpolation=cv2.INTER_LANCZOS4)  # Посмотреть другие interp
@@ -104,12 +106,14 @@ def parse_image(img):
                 symbol = test_img
 
             # Создаём квадратный символ 28x28 и по центру помещаем исходный 26x26
-            shiftW = int(28.0 // 2 - symbol_size[1] // 2)
-            shiftH = int(28.0 // 2 - symbol_size[0] // 2)
+            shiftW = int(32.0 // 2 - symbol_size[1] // 2)
+            shiftH = int(32.0 // 2 - symbol_size[0] // 2)
             for i in range(symbol_size[0]):
                 for j in range(symbol_size[1]):
                     symbol_squared[i + shiftH, j + shiftW] = symbol[i, j]
 
+            # plt.imshow(symbol_squared, cmap=plt.cm.binary)
+            # plt.show()
 
             symbols.append(symbol_squared)
             symbols_bounds.append([x, y, w, h])
@@ -120,7 +124,7 @@ def parse_image(img):
         symbols[id] = symbols[id] / 255.0
         symbols[id] = 1 - symbols[id]
 
-        id_symbol_predicted = np.argmax(model.predict(np.array([symbols[id].reshape(28, 28, 1)])))
+        id_symbol_predicted = np.argmax(model.predict(np.array([symbols[id].reshape(32, 32, 1)])))
         symbol_predicted = symbols_dictionary[id_symbol_predicted]
 
         predicted_symbol_labels.append(symbol_predicted)
