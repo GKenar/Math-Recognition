@@ -71,7 +71,7 @@ current_former_x = 0
 current_former_y = 0
 
 build_model()
-checkpoint_path = "training_1/cp.ckpt"
+checkpoint_path = "training/cp.ckpt"
 load_weights(checkpoint_path)
 
 image = 255 * np.ones((500, 800, 3), dtype=np.uint8)
