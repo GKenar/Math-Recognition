@@ -20,6 +20,8 @@ class Symbols(Enum):
     SYMBOL_DECIMAL_DOT = 100
     SYMBOL_FRACTION = 101
     SYMBOL_MUL = 102
+    SYMBOL_UNDERSCORE = 103
+    SYMBOL_POWER = 104
 
 
 class SymbolType(Enum):
@@ -45,7 +47,9 @@ def symbol_type(s):
     elif s == Symbols.SYMBOL_PLUS or \
             s == Symbols.SYMBOL_MINUS or \
             s == Symbols.SYMBOL_FRACTION or \
-            s == Symbols.SYMBOL_MUL:
+            s == Symbols.SYMBOL_MUL or \
+            s == Symbols.SYMBOL_POWER or \
+            s == Symbols.SYMBOL_UNDERSCORE:
         return SymbolType.OPERATOR
     elif s == Symbols.SYMBOL_LBRACKET or \
             s == Symbols.SYMBOL_RBRACKET:
@@ -93,6 +97,10 @@ def symbol_to_str(s):
         return '.'
     elif s == Symbols.SYMBOL_FRACTION:
         return '/'
+    elif s == Symbols.SYMBOL_POWER:
+        return '^'
+    elif s == Symbols.SYMBOL_UNDERSCORE:
+        return '_'
     else:
         return ''
 
