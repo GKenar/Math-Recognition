@@ -5,25 +5,26 @@ from tensorflow import keras
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPool2D, Dropout
 import cv2
 import matplotlib.pyplot as plt
+from symbols import Symbols
 
 model = keras.Sequential()
 
 symbols_dictionary = {
-    0: '0',
-    1: '1',
-    2: '2',
-    3: '3',
-    4: '4',
-    5: '5',
-    6: '6',
-    7: '7',
-    8: '8',
-    9: '9',
-    10: '+',
-    11: '-',
-    12: 'dot',
-    13: '(',
-    14: ')',
+    0: Symbols.SYMBOL_0,
+    1: Symbols.SYMBOL_1,
+    2: Symbols.SYMBOL_2,
+    3: Symbols.SYMBOL_3,
+    4: Symbols.SYMBOL_4,
+    5: Symbols.SYMBOL_5,
+    6: Symbols.SYMBOL_6,
+    7: Symbols.SYMBOL_7,
+    8: Symbols.SYMBOL_8,
+    9: Symbols.SYMBOL_9,
+    10: Symbols.SYMBOL_PLUS,
+    11: Symbols.SYMBOL_MINUS,
+    12: Symbols.SYMBOL_DOT,
+    13: Symbols.SYMBOL_LBRACKET,
+    14: Symbols.SYMBOL_RBRACKET,
 }
 
 

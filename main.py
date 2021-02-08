@@ -1,6 +1,7 @@
 from layoutpass import do_layout_pass, Symbol
 from math_r import parse_image, build_model, load_weights
 from lexical_analysis import do_lexical_analysis
+from symbols import symbol_to_str
 import cv2
 import numpy as np
 
@@ -16,27 +17,27 @@ def image_parser_data_converter(data):
 
 
 # Функция для перевода layoutpass в список
-def layout_pass_to_string(layout: Symbol):
+def layout_pass_to_list(layout: Symbol):
     list = []
     while layout is not None:
         if layout.above is not None:
             list.extend('(')
-            list.extend(layout_pass_to_string(layout.above))
+            list.extend(layout_pass_to_list(layout.above))
             list.extend(')')
 
-        list.append(layout.symbol_label)
+        list.append(symbol_to_str(layout.symbol_label))
 
         if layout.super is not None:
             list.extend('^(')
-            list.extend(layout_pass_to_string(layout.super))
+            list.extend(layout_pass_to_list(layout.super))
             list.extend(')')
         if layout.subsc is not None:
             list.extend('_(')
-            list.extend(layout_pass_to_string(layout.subsc))
+            list.extend(layout_pass_to_list(layout.subsc))
             list.extend(')')
         if layout.below is not None:
             list.extend('(')
-            list.extend(layout_pass_to_string(layout.below))
+            list.extend(layout_pass_to_list(layout.below))
             list.extend(')')
 
         layout = layout.next
@@ -91,8 +92,8 @@ while True:
         result = image_parser_data_converter(result)
 
         x = do_layout_pass(result)
-        do_lexical_analysis(x)
-        str = ''.join(layout_pass_to_string(x))
+        tokens = do_lexical_analysis(x)
+        str = ''.join(layout_pass_to_list(x))
         print(str)
 
 cv2.destroyAllWindows()

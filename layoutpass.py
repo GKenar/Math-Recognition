@@ -2,6 +2,7 @@ __all__ = ["Symbol", "do_layout_pass"]
 
 from enum import Enum
 from collections import namedtuple
+from symbols import Symbols
 import math
 
 
@@ -30,21 +31,21 @@ classes_dictionary = {
     'x': SymbolClass.PLAIN_CENTERED,
     'y': SymbolClass.PLAIN_DESCENDER,
     'z': SymbolClass.PLAIN_CENTERED,
-    '+': SymbolClass.NON_SCRIPTED,
-    '-': SymbolClass.NON_SCRIPTED,
-    '0': SymbolClass.PLAIN_ASCENDER,
-    '1': SymbolClass.PLAIN_ASCENDER,
-    '2': SymbolClass.PLAIN_ASCENDER,
-    '3': SymbolClass.PLAIN_ASCENDER,
-    '4': SymbolClass.PLAIN_ASCENDER,
-    '5': SymbolClass.PLAIN_ASCENDER,
-    '6': SymbolClass.PLAIN_ASCENDER,
-    '7': SymbolClass.PLAIN_ASCENDER,
-    '8': SymbolClass.PLAIN_ASCENDER,
-    '9': SymbolClass.PLAIN_ASCENDER,
-    '(': SymbolClass.OPEN_BRACKET,
-    ')': SymbolClass.PLAIN_CENTERED,
-    'dot': SymbolClass.NON_SCRIPTED
+    Symbols.SYMBOL_PLUS: SymbolClass.NON_SCRIPTED,
+    Symbols.SYMBOL_MINUS: SymbolClass.NON_SCRIPTED,
+    Symbols.SYMBOL_0: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_1: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_2: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_3: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_4: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_5: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_6: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_7: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_8: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_9: SymbolClass.PLAIN_ASCENDER,
+    Symbols.SYMBOL_LBRACKET: SymbolClass.OPEN_BRACKET,
+    Symbols.SYMBOL_RBRACKET: SymbolClass.PLAIN_CENTERED,
+    Symbols.SYMBOL_DOT: SymbolClass.NON_SCRIPTED
 }
 
 """
@@ -246,7 +247,7 @@ def sort_symbols_list(symbols):
 # Пока так. Нужно продумать с примером 10.
 def dominance(s1, s2):
     if s1.symbol_class == SymbolClass.NON_SCRIPTED and s1.bounds.left <= s2.centroid[0] < s1.bounds.right:
-        if not ((s2.symbol_label == '(' or s2.symbol_label == ')') and
+        if not ((s2.symbol_label == Symbols.SYMBOL_LBRACKET or s2.symbol_label == Symbols.SYMBOL_RBRACKET) and
                 s2.bounds.top <= s1.centroid[1] < s2.bounds.bottom and
                 s2.bounds.left <= s1.bounds.left):
             if not (s2.symbol_class == SymbolClass.NON_SCRIPTED and
