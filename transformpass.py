@@ -1,0 +1,35 @@
+__all__ = ["do_transform"]
+
+from layoutpass import Symbol
+from symbols import Symbols
+
+
+def do_transform(s: Symbol):
+    transform(s)
+
+
+def transform(s: Symbol):
+    if s is None:
+        return
+
+    # Пока такое решение. Иногда точка попадает в below..
+    if s.subsc is not None and s.subsc.symbol_label == Symbols.SYMBOL_DOT:
+        s.subsc.symbol_label = Symbols.SYMBOL_DECIMAL_DOT
+        s.subsc.next = s.next
+        s.next = s.subsc
+        s.subsc = None
+
+    if s.symbol_label == Symbols.SYMBOL_DOT:  # Пока такое решение
+        s.symbol_label = Symbols.SYMBOL_MUL
+
+    if s.above is not None and \
+            s.below is not None and \
+            s.symbol_label == Symbols.SYMBOL_MINUS:
+        s.symbol_label = Symbols.SYMBOL_FRACTION
+
+    transform(s.next)
+    transform(s.super)
+    transform(s.subsc)
+    transform(s.below)
+    transform(s.above)
+
