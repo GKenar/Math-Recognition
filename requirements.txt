@@ -2,3 +2,4 @@ opencv-python~=4.4.0.44
 numpy~=1.18.5
 matplotlib~=3.3.2
 tensorflow~=2.3.0
+wolframclient~=1.1.4

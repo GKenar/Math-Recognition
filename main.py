@@ -2,6 +2,8 @@ from layoutpass import do_layout_pass, Symbol
 from math_r import parse_image, build_model, load_weights
 from transformpass import do_transform
 from symbols import symbol_to_str
+from solver import Solver
+from symbols_tree_adapter import adapt_to_solver
 import cv2
 import numpy as np
 
@@ -71,6 +73,14 @@ mouse2_hold = False  # true if mouse2 is pressed
 current_former_x = 0
 current_former_y = 0
 
+wolfram_keys_file = open("wolfram_cloud_keys.txt", "r")
+wolfram_keys = wolfram_keys_file.read().split('\n')
+consumer_key = wolfram_keys[0]
+consumer_secret = wolfram_keys[1]
+
+solver = Solver(consumer_key, consumer_secret)
+solver.start_session()
+
 build_model()
 checkpoint_path = "training/cp.ckpt"
 load_weights(checkpoint_path)
@@ -93,7 +103,10 @@ while True:
 
         x = do_layout_pass(result)
         do_transform(x)
-        str = ''.join(layout_pass_to_list(x))
-        print(str)
+        str_simple = ''.join(layout_pass_to_list(x))
+        str_adapted = adapt_to_solver(x)
+        print(str_simple)
+        print(str_adapted)
+        print('result: ', solver.solve(str_adapted))
 
 cv2.destroyAllWindows()
