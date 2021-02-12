@@ -2,7 +2,7 @@ from layoutpass import do_layout_pass, Symbol
 from math_r import parse_image, build_model, load_weights
 from transformpass import do_transform
 from symbols import symbol_to_str
-from solver import Solver
+from solver import Solver, solver_output_to_str
 from symbols_tree_adapter import adapt_to_solver
 import cv2
 import numpy as np
@@ -107,6 +107,6 @@ while True:
         str_adapted = adapt_to_solver(x)
         print(str_simple)
         print(str_adapted)
-        print('result: ', solver.solve(str_adapted))
+        print('result: ', solver_output_to_str(solver.solve(str_adapted)))
 
 cv2.destroyAllWindows()
