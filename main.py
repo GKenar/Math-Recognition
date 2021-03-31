@@ -1,5 +1,5 @@
 from layoutpass import do_layout_pass, Symbol
-from math_r import parse_image, build_model, load_weights
+from image_parser import parse_image, build_model, load_weights
 from transformpass import do_transform
 from symbols import symbol_to_str
 from solver import Solver, solver_output_to_str
