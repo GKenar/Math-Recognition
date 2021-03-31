@@ -91,6 +91,16 @@ def parse_image(img):
             aspect = (symbol_image_size - 2.0) / size_max
 
             symbol = gray[y:y + h, x:x + w]
+            symbol = cv2.bitwise_not(symbol)  # Так не дело
+
+            mask = np.zeros(symbol.shape, np.uint8)
+            cv2.drawContours(mask, [contour], -1, (255, 255, 255), -1, offset=(-x, -y))
+            symbol = cv2.bitwise_and(symbol, symbol, mask=mask)
+            symbol = cv2.bitwise_not(symbol)  # Так не дело
+
+            # cv2.imshow('symbol', symbol)
+            # cv2.waitKey(0)
+
             # Сжимаем до 24px по бОльшей стороне
             symbol = cv2.resize(symbol, (int(np.ceil(w * aspect)), int(np.ceil(h * aspect))),
                                 interpolation=cv2.INTER_LANCZOS4)  # Посмотреть другие interp
@@ -114,6 +124,8 @@ def parse_image(img):
                 for j in range(symbol_size[1]):
                     symbol_squared[i + shiftH, j + shiftW] = symbol[i, j]
 
+            # cv2.imshow('symbol_squared', symbol_squared)
+            # cv2.waitKey(0)
             # plt.imshow(symbol_squared, cmap=plt.cm.binary)
             # plt.show()
 
