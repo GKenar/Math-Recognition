@@ -1,3 +1,5 @@
+__all__ = ["Symbol", "do_layout_pass"]
+
 from layoutpass import do_layout_pass, Symbol
 from math_r import parse_image, build_model, load_weights
 from transformpass import do_transform
@@ -46,6 +48,26 @@ def layout_pass_to_list(layout: Symbol):
     return list
 
 
+# API 1
+def math_recognition_image(img):
+    build_model()
+    checkpoint_path = "training/cp.ckpt"
+    load_weights(checkpoint_path)
+
+    output = parse_image(img)
+    output = image_parser_data_converter(output)
+
+    root_bt = do_layout_pass(output)
+    do_transform(root_bt)
+    return root_bt
+
+
+# API 2
+def math_recognition_image_by_path(path):
+    img = cv2.imread(path)
+    return math_recognition_image(img)
+
+
 # mouse callback function
 def paint_draw(event, former_x, former_y, flags, param):
     global current_former_x, current_former_y, mouse1_hold, mouse2_hold
@@ -68,45 +90,46 @@ def paint_draw(event, former_x, former_y, flags, param):
     return former_x, former_y
 
 
-mouse1_hold = False  # true if mouse1 is pressed
-mouse2_hold = False  # true if mouse2 is pressed
-current_former_x = 0
-current_former_y = 0
+if __name__ == "__main__":
+    mouse1_hold = False  # true if mouse1 is pressed
+    mouse2_hold = False  # true if mouse2 is pressed
+    current_former_x = 0
+    current_former_y = 0
 
-wolfram_keys_file = open("wolfram_cloud_keys.txt", "r")
-wolfram_keys = wolfram_keys_file.read().split('\n')
-consumer_key = wolfram_keys[0]
-consumer_secret = wolfram_keys[1]
+    wolfram_keys_file = open("wolfram_cloud_keys.txt", "r")
+    wolfram_keys = wolfram_keys_file.read().split('\n')
+    consumer_key = wolfram_keys[0]
+    consumer_secret = wolfram_keys[1]
 
-solver = Solver(consumer_key, consumer_secret)
-solver.start_session()
+    solver = Solver(consumer_key, consumer_secret)
+    solver.start_session()
 
-build_model()
-checkpoint_path = "training/cp.ckpt"
-load_weights(checkpoint_path)
+    build_model()
+    checkpoint_path = "training/cp.ckpt"
+    load_weights(checkpoint_path)
 
-image = 255 * np.ones((500, 800, 3), dtype=np.uint8)
-cv2.namedWindow('Math-r Test')
-cv2.setMouseCallback('Math-r Test', paint_draw)
-while True:
-    cv2.imshow('Math-r Test', image)
-    k = cv2.waitKey(1) & 0xFF
-    if k == 27:  # Escape KEY
-        break
-    elif k == ord('c'):
-        image[:] = 255
-    elif k == ord('r'):
-        # cv2.imwrite("tmp_expression.jpg", image)
+    image = 255 * np.ones((500, 800, 3), dtype=np.uint8)
+    cv2.namedWindow('Math-r Test')
+    cv2.setMouseCallback('Math-r Test', paint_draw)
+    while True:
+        cv2.imshow('Math-r Test', image)
+        k = cv2.waitKey(1) & 0xFF
+        if k == 27:  # Escape KEY
+            break
+        elif k == ord('c'):
+            image[:] = 255
+        elif k == ord('r'):
+            # cv2.imwrite("tmp_expression.jpg", image)
 
-        result = parse_image(image)
-        result = image_parser_data_converter(result)
+            result = parse_image(image)
+            result = image_parser_data_converter(result)
 
-        x = do_layout_pass(result)
-        do_transform(x)
-        str_simple = ''.join(layout_pass_to_list(x))
-        str_adapted = adapt_to_solver(x)
-        print(str_simple)
-        print(str_adapted)
-        print('result: ', solver_output_to_str(solver.solve(str_adapted)))
+            x = do_layout_pass(result)
+            do_transform(x)
+            str_simple = ''.join(layout_pass_to_list(x))
+            str_adapted = adapt_to_solver(x)
+            print(str_simple)
+            print(str_adapted)
+            print('result: ', solver_output_to_str(solver.solve(str_adapted)))
 
-cv2.destroyAllWindows()
+    cv2.destroyAllWindows()
