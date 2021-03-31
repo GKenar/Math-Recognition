@@ -36,11 +36,11 @@ def __adapt_to_solver(s: Symbol):
 
             if s.super is not None:
                 list.extend('^(')
-                list.extend(adapt_to_solver(s.super))
+                list.extend(list_super)
                 list.extend(')')
             if s.subsc is not None:
                 list.extend('_(')
-                list.extend(adapt_to_solver(s.subsc))
+                list.extend(list_subsc)
                 list.extend(')')
 
         while len(stack) != 0:
