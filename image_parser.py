@@ -86,6 +86,10 @@ def parse_image(img):
             (x, y, w, h) = cv2.boundingRect(contour)
             # cv2.rectangle(output, (x, y), (x + w, y + h), (70, 0, 0), 1)
 
+            # Отбрасываем символы, площадь рамки которых меньше порога
+            if w * h <= 100:
+                continue
+
             size_max = max(w, h)
             symbol_squared = 255 * np.ones((symbol_image_size, symbol_image_size))
             aspect = (symbol_image_size - 2.0) / size_max
