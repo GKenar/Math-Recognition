@@ -1,11 +1,10 @@
-__all__ = ["Symbol", "do_layout_pass"]
-
 from layoutpass import do_layout_pass, Symbol
 from math_r import parse_image, build_model, load_weights
 from transformpass import do_transform
 from symbols import symbol_to_str
 from solver import Solver, solver_output_to_str
 from symbols_tree_adapter import adapt_to_solver
+from os import path
 import cv2
 import numpy as np
 
@@ -48,11 +47,15 @@ def layout_pass_to_list(layout: Symbol):
     return list
 
 
+def prepare_network():
+    build_model()
+    checkpoint_path = path.join(path.dirname(__file__), 'training/cp.ckpt')
+    load_weights(checkpoint_path)
+
+
 # API 1
 def math_recognition_image(img):
-    build_model()
-    checkpoint_path = "training/cp.ckpt"
-    load_weights(checkpoint_path)
+    prepare_network()
 
     output = parse_image(img)
     output = image_parser_data_converter(output)
@@ -104,9 +107,7 @@ if __name__ == "__main__":
     solver = Solver(consumer_key, consumer_secret)
     solver.start_session()
 
-    build_model()
-    checkpoint_path = "training/cp.ckpt"
-    load_weights(checkpoint_path)
+    prepare_network()
 
     image = 255 * np.ones((500, 800, 3), dtype=np.uint8)
     cv2.namedWindow('Math-r Test')
