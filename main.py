@@ -55,8 +55,6 @@ def prepare_network():
 
 # API 1
 def math_recognition_image(img):
-    prepare_network()
-
     output = parse_image(img)
     output = image_parser_data_converter(output)
 
@@ -131,6 +129,9 @@ if __name__ == "__main__":
             str_adapted = adapt_to_solver(x)
             print(str_simple)
             print(str_adapted)
-            print('result: ', solver_output_to_str(solver.solve(str_adapted)))
+            try:
+                print('result: ', solver_output_to_str(solver.solve(str_adapted)))
+            except Exception:
+                print("error")
 
     cv2.destroyAllWindows()
