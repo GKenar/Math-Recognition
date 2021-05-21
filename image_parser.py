@@ -77,14 +77,12 @@ def parse_image(img):
     contours, hierarchy = cv2.findContours(img_erode, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)  # CHAIN_APPROX_SIMPLE
 
     # Формируем массив символов из полученных ранее контуров; сжимаем каждую картинку
-    # символа до 28x28
+    # символа до (symbol_image_size на symbol_image_size)
     symbols = []
     symbols_bounds = []
-    # cv2.contourArea(cnt) > 200 Посмотреть
     for idx, contour in enumerate(contours):
         if hierarchy[0][idx][3] == 0:
             (x, y, w, h) = cv2.boundingRect(contour)
-            # cv2.rectangle(output, (x, y), (x + w, y + h), (70, 0, 0), 1)
 
             # Отбрасываем символы, площадь рамки которых меньше порога
             if w * h <= 100:
@@ -97,15 +95,13 @@ def parse_image(img):
             symbol = gray[y:y + h, x:x + w]
             symbol = cv2.bitwise_not(symbol)  # Так не дело
 
+            # Вырезаем символ по маске, чтобы в прямоугольную область не попадали куски других символов
             mask = np.zeros(symbol.shape, np.uint8)
             cv2.drawContours(mask, [contour], -1, (255, 255, 255), -1, offset=(-x, -y))
             symbol = cv2.bitwise_and(symbol, symbol, mask=mask)
             symbol = cv2.bitwise_not(symbol)  # Так не дело
 
-            # cv2.imshow('symbol', symbol)
-            # cv2.waitKey(0)
-
-            # Сжимаем до 24px по бОльшей стороне
+            # Сжимаем по бОльшей стороне
             symbol = cv2.resize(symbol, (int(np.ceil(w * aspect)), int(np.ceil(h * aspect))),
                                 interpolation=cv2.INTER_LANCZOS4)  # Посмотреть другие interp
             symbol_size = symbol.shape
@@ -114,22 +110,15 @@ def parse_image(img):
                 test_img = 255 * np.ones((symbol_image_size, symbol_image_size))
                 contour_scaled = scale_contour(contour, aspect)
                 cv2.drawContours(test_img, [contour_scaled], 0, (0, 0, 0), 1, offset=(-x, -y))
-                # cv2.fillPoly(test_img, contour_scaled, (0, 0, 0), offset=(-x, -y))
-                # test_img = cv2.resize(test_img, (500, 500),
-                #                    interpolation=cv2.INTER_LANCZOS4)  # Посмотреть другие interp
-                # cv2.imshow('11', test_img)
-                # cv2.waitKey(0)
                 symbol = test_img
 
-            # Создаём квадратный символ 28x28 и по центру помещаем исходный 26x26
+            # Создаём квадратный символ (symbol_image_size на symbol_image_size) и по центру помещаем исходный
             shiftW = int(symbol_image_size // 2 - symbol_size[1] // 2)
             shiftH = int(symbol_image_size // 2 - symbol_size[0] // 2)
             for i in range(symbol_size[0]):
                 for j in range(symbol_size[1]):
                     symbol_squared[i + shiftH, j + shiftW] = symbol[i, j]
 
-            # cv2.imshow('symbol_squared', symbol_squared)
-            # cv2.waitKey(0)
             # plt.imshow(symbol_squared, cmap=plt.cm.binary)
             # plt.show()
 
