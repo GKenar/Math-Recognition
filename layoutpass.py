@@ -287,7 +287,10 @@ def belong_region(s1, s2):
     elif x_cent > s1.bounds.right and y_cent > s1.regions.subsc:
         return Region.SUBSC
     elif s1.bounds.left <= x_cent <= s1.bounds.right and s1.regions.above > y_cent:
-        return Region.ABOVE
+        if s1.symbol_class == SymbolClass.NON_SCRIPTED:  # Это временное решение, т.к. у нас нет диакритических знаков
+            return Region.ABOVE
+        else:
+            return Region.SUPER  # Если символ находится НАД другим символом (не дробью), то он причисляется в SUPER
     elif s1.bounds.left <= x_cent <= s1.bounds.right and s1.regions.below < y_cent:
         return Region.BELOW
 
