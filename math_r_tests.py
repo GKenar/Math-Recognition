@@ -25,6 +25,17 @@ tests_data = [
     {'id': 19, 'answer': '10.1*10', 'expression_path': 'test_images/19.png'},
     {'id': 20, 'answer': '0.1^(0.01)', 'expression_path': 'test_images/20.png'},
     {'id': 21, 'answer': '(2+2*2)/(1*2*3.4)', 'expression_path': 'test_images/21.png'},
+    {'id': 22, 'answer': '11111111', 'expression_path': 'test_images/22.png'},
+    {'id': 23, 'answer': '2222222', 'expression_path': 'test_images/23.png'},
+    {'id': 24, 'answer': '00000000', 'expression_path': 'test_images/24.png'},
+    {'id': 25, 'answer': '33333333', 'expression_path': 'test_images/25.png'},
+    {'id': 26, 'answer': '44444444', 'expression_path': 'test_images/26.png'},
+    {'id': 27, 'answer': '5555555', 'expression_path': 'test_images/27.png'},
+    {'id': 28, 'answer': '66666666', 'expression_path': 'test_images/28.png'},
+    {'id': 29, 'answer': '7777777', 'expression_path': 'test_images/29.png'},
+    {'id': 30, 'answer': '88888888', 'expression_path': 'test_images/30.png'},
+    {'id': 31, 'answer': '99999999', 'expression_path': 'test_images/31.png'},
+    {'id': 32, 'answer': '**********', 'expression_path': 'test_images/32.png'},
 ]
 
 if __name__ == "__main__":
