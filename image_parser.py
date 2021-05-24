@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from symbols import Symbols
 
 model = keras.Sequential()
-symbol_image_size = 64
+symbol_image_size = 48
 
 symbols_dictionary = {
     0: Symbols.SYMBOL_0,
@@ -30,16 +30,14 @@ symbols_dictionary = {
 
 
 def build_model():
-    model.add(Conv2D(filters=32, kernel_size=3, activation='relu', padding='same', input_shape=(symbol_image_size, symbol_image_size, 1)))
+    model.add(Conv2D(filters=64, kernel_size=5, activation='relu', padding='same', input_shape=(symbol_image_size, symbol_image_size, 1)))
     model.add(MaxPool2D(pool_size=(2, 2)))
-    model.add(Conv2D(filters=64, kernel_size=3, activation='relu', padding='same'))
+    model.add(Conv2D(filters=64, kernel_size=5, activation='relu', padding='same'))
     model.add(MaxPool2D(pool_size=(2, 2)))
-    model.add(Conv2D(filters=64, kernel_size=3, activation='relu', padding='same'))
-    model.add(Dropout(0.25))
+    model.add(Conv2D(filters=64, kernel_size=5, activation='relu', padding='same'))
+    model.add(MaxPool2D(pool_size=(2, 2)))
     model.add(Flatten())
     model.add(Dense(512, activation='relu'))
-    model.add(Dropout(0.25))
-    model.add(Dense(128, activation='relu'))
     model.add(Dropout(0.25))
     model.add(Dense(15, activation='softmax'))
 
