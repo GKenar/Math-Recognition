@@ -36,6 +36,10 @@ tests_data = [
     {'id': 30, 'answer': '88888888', 'expression_path': 'test_images/30.png'},
     {'id': 31, 'answer': '99999999', 'expression_path': 'test_images/31.png'},
     {'id': 32, 'answer': '**********', 'expression_path': 'test_images/32.png'},
+    {'id': 33, 'answer': '(((((((((', 'expression_path': 'test_images/33.png'},
+    {'id': 34, 'answer': '))))))))', 'expression_path': 'test_images/34.png'},
+    {'id': 35, 'answer': '+++++++', 'expression_path': 'test_images/35.png'},
+    {'id': 36, 'answer': '--------', 'expression_path': 'test_images/36.png'},
 ]
 
 if __name__ == "__main__":
