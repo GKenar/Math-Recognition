@@ -24,10 +24,10 @@ def transform(s: Symbol):
 
     if s.symbol_label == Symbols.SYMBOL_MINUS and ((s.above is not None and
                                                     s.above.symbol_label == Symbols.SYMBOL_MINUS and
-                                                    s.above.below is None) or
+                                                    __is_no_surroundings(s.above)) or
                                                    (s.below is not None and
                                                     s.below.symbol_label == Symbols.SYMBOL_MINUS and
-                                                    s.below.above is None)):
+                                                    __is_no_surroundings(s.below))):
         __transform_to_equal(s)
 
     if s.above is not None and \
@@ -40,6 +40,14 @@ def transform(s: Symbol):
     transform(s.subsc)
     transform(s.below)
     transform(s.above)
+
+
+def __is_no_surroundings(s: Symbol):
+    if s.above is None and s.below is None and \
+            s.subsc is None and s.super is None and s.next is None:
+        return True
+    else:
+        return False
 
 
 def __transform_to_equal(s: Symbol):
