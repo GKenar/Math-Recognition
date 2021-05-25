@@ -28,9 +28,7 @@ class Region(Enum):
 
 # Пока для классификации буду использовать словарь, потом может что-то другое придумаю
 classes_dictionary = {
-    'x': SymbolClass.PLAIN_CENTERED,
-    'y': SymbolClass.PLAIN_DESCENDER,
-    'z': SymbolClass.PLAIN_CENTERED,
+    Symbols.SYMBOL_X: SymbolClass.PLAIN_CENTERED,
     Symbols.SYMBOL_PLUS: SymbolClass.NON_SCRIPTED,
     Symbols.SYMBOL_MINUS: SymbolClass.NON_SCRIPTED,
     Symbols.SYMBOL_0: SymbolClass.PLAIN_ASCENDER,

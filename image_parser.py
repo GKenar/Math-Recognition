@@ -26,6 +26,7 @@ symbols_dictionary = {
     12: Symbols.SYMBOL_DOT,
     13: Symbols.SYMBOL_LBRACKET,
     14: Symbols.SYMBOL_RBRACKET,
+    15: Symbols.SYMBOL_X,
 }
 
 
@@ -39,7 +40,7 @@ def build_model():
     model.add(Flatten())
     model.add(Dense(512, activation='relu'))
     model.add(Dropout(0.25))
-    model.add(Dense(15, activation='softmax'))
+    model.add(Dense(16, activation='softmax'))
 
     model.compile(loss="categorical_crossentropy",
                   optimizer="adam",

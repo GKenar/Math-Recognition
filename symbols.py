@@ -17,6 +17,7 @@ class Symbols(Enum):
     SYMBOL_PLUS = 13
     SYMBOL_MINUS = 14
     SYMBOL_DOT = 15
+    SYMBOL_X = 16
     SYMBOL_DECIMAL_DOT = 100
     SYMBOL_FRACTION = 101
     SYMBOL_MUL = 102
@@ -31,6 +32,7 @@ class SymbolType(Enum):
     BRACKET = 3
     DECIMAL_DOT = 4
     COMPARISON = 5
+    VARIABLE = 6
     OTHER = 100
 
 
@@ -60,6 +62,8 @@ def symbol_type(s):
         return SymbolType.DECIMAL_DOT
     elif s == Symbols.SYMBOL_EQUAL:
         return SymbolType.COMPARISON
+    elif s == Symbols.SYMBOL_X:
+        return SymbolType.VARIABLE
     else:
         return SymbolType.OTHER
 
@@ -107,6 +111,8 @@ def symbol_to_str(s):
         return '_'
     elif s == Symbols.SYMBOL_EQUAL:
         return '='
+    elif s == Symbols.SYMBOL_X:
+        return 'x'
     else:
         return ''
 
