@@ -16,12 +16,13 @@ class Symbols(Enum):
     SYMBOL_RBRACKET = 12
     SYMBOL_PLUS = 13
     SYMBOL_MINUS = 14
-    SYMBOL_DOT = 15  # Добавить отдельный символ MUL!
+    SYMBOL_DOT = 15
     SYMBOL_DECIMAL_DOT = 100
     SYMBOL_FRACTION = 101
     SYMBOL_MUL = 102
     SYMBOL_UNDERSCORE = 103
     SYMBOL_POWER = 104
+    SYMBOL_EQUAL = 105
 
 
 class SymbolType(Enum):
@@ -29,7 +30,8 @@ class SymbolType(Enum):
     OPERATOR = 2
     BRACKET = 3
     DECIMAL_DOT = 4
-    OTHER = 5
+    COMPARISON = 5
+    OTHER = 100
 
 
 def symbol_type(s):
@@ -56,6 +58,8 @@ def symbol_type(s):
         return SymbolType.BRACKET
     elif s == Symbols.SYMBOL_DECIMAL_DOT:
         return SymbolType.DECIMAL_DOT
+    elif s == Symbols.SYMBOL_EQUAL:
+        return SymbolType.COMPARISON
     else:
         return SymbolType.OTHER
 
@@ -101,6 +105,8 @@ def symbol_to_str(s):
         return '^'
     elif s == Symbols.SYMBOL_UNDERSCORE:
         return '_'
+    elif s == Symbols.SYMBOL_EQUAL:
+        return '='
     else:
         return ''
 

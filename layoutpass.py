@@ -1,4 +1,4 @@
-__all__ = ["Symbol", "do_layout_pass"]
+__all__ = ["Symbol", "do_layout_pass", "Bounds", "set_symbol_thresholds_and_centroid"]
 
 from enum import Enum
 from collections import namedtuple
