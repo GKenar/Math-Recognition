@@ -1,4 +1,4 @@
-__all__ = ["Symbol", "do_layout_pass", "Bounds", "set_symbol_thresholds_and_centroid"]
+__all__ = ["Symbol", "do_layout_pass"]
 
 from enum import Enum
 from collections import namedtuple
@@ -43,7 +43,8 @@ classes_dictionary = {
     Symbols.SYMBOL_9: SymbolClass.PLAIN_ASCENDER,
     Symbols.SYMBOL_LBRACKET: SymbolClass.OPEN_BRACKET,
     Symbols.SYMBOL_RBRACKET: SymbolClass.PLAIN_CENTERED,
-    Symbols.SYMBOL_DOT: SymbolClass.NON_SCRIPTED
+    Symbols.SYMBOL_DOT: SymbolClass.NON_SCRIPTED,
+    Symbols.SYMBOL_EQUAL: SymbolClass.NON_SCRIPTED,
 }
 
 """
@@ -306,8 +307,51 @@ def find_next_in_baseline(s_cur, symbols):
     return None
 
 
+# Функция составляет новый список из символов, где два минуса друг над другом заменяются на "равно"
+def __preprocessing_equal_sign(data):
+    processed_data = []
+
+    while len(data) > 0:
+        s = data.pop()
+        if s.symbol_label != Symbols.SYMBOL_MINUS:
+            processed_data.append(s)
+            continue
+
+        second_line = None
+        k = 0
+        for s2 in data:
+            if k > 1:
+                break
+
+            if s.bounds.left <= s2.centroid[0] <= s.bounds.right:
+                k = k + 1
+                if s2.symbol_label == Symbols.SYMBOL_MINUS:
+                    second_line = s2
+
+        if k == 1 and second_line is not None:
+            # Если нет других символов над\под, кроме второй черты
+            left = s.bounds.left if s.bounds.left < second_line.bounds.left else second_line.bounds.left
+            right = s.bounds.right if s.bounds.right > second_line.bounds.right else second_line.bounds.right
+            top = s.bounds.top if s.bounds.top < second_line.bounds.top else second_line.bounds.top
+            bottom = s.bounds.bottom if s.bounds.bottom > second_line.bounds.bottom else second_line.bounds.bottom
+
+            # Уже такой код есть => вынести в отдельную функцию
+            s_new = Symbol(Symbols.SYMBOL_EQUAL)
+            s_new.bounds = Bounds(left=left, top=top, right=right, bottom=bottom)
+            s_new.symbol_class = classes_dictionary[s_new.symbol_label]
+            set_symbol_thresholds_and_centroid(s_new)
+
+            data.remove(second_line)
+            processed_data.append(s_new)
+        else:
+            processed_data.append(s)
+
+    return processed_data
+
+
 def do_layout_pass(data):
     symbols = symbols_data_convertor(data)
+    symbols = __preprocessing_equal_sign(symbols)
 
     return layout_pass(symbols)
 
