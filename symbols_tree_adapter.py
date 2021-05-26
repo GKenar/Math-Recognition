@@ -3,7 +3,20 @@ from layoutpass import Symbol
 
 
 def adapt_to_solver(s: Symbol):
-    return ''.join(__adapt_to_solver(s))
+    # "Равно" может быть только ведь в главной базовой линии?
+    is_equation = False
+    _s = s
+    while _s is not None:
+        if _s.symbol_label == Symbols.SYMBOL_EQUAL:
+            is_equation = True
+            break
+        _s = _s.next
+
+    # Если это уравнение, то дополняем функцией Solve, чтобы wolfram решил
+    if is_equation:
+        return 'ExportString[Solve[' + ''.join(__adapt_to_solver(s)) + '], "Text"]'
+    else:
+        return ''.join(__adapt_to_solver(s))
 
 
 def fraction_handling(s: Symbol, super, subsc, above, below):
@@ -31,6 +44,8 @@ def __adapt_to_solver(s: Symbol):
             list.extend(func_parts['head'])
             if func_parts['last_symbol'] is not None:
                 stack.append((func_parts['last_symbol'], func_parts['tail']))
+        elif s.symbol_label == Symbols.SYMBOL_EQUAL:
+            list.extend('==')
         else:
             list.append(symbol_to_str(s.symbol_label))
 
