@@ -40,6 +40,9 @@ tests_data = [
     {'id': 34, 'answer': '))))))))', 'expression_path': 'test_images/34.png'},
     {'id': 35, 'answer': '+++++++', 'expression_path': 'test_images/35.png'},
     {'id': 36, 'answer': '--------', 'expression_path': 'test_images/36.png'},
+    {'id': 37, 'answer': 'xxxxxxx', 'expression_path': 'test_images/37.png'},
+    {'id': 38, 'answer': 'ExportString[Solve[x^(2)+7*x==10], "Text"]', 'expression_path': 'test_images/38.png'},
+    {'id': 39, 'answer': 'ExportString[Solve[============], "Text"]', 'expression_path': 'test_images/39.png'},
 ]
 
 if __name__ == "__main__":
